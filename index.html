@@ -1,26 +1,79 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Ignyst</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #111;
-            color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        h1 {
-            color: #ff4500;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Ignyst</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background-color: #111;
+      font-family: Arial, sans-serif;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+    }
+
+    h1 {
+      position: absolute;
+      color: #ff4500;
+      z-index: 2;
+      text-align: center;
+    }
+
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
+    }
+  </style>
 </head>
 <body>
-    <h1>Ignyst Digital Doorman - Coming Soon</h1>
-</body>
-</html>
+  <h1>Ignyst Digital Doorman - Coming Soon</h1>
+  <canvas id="volcanoCanvas"></canvas>
+
+  <script>
+    const canvas = document.getElementById('volcanoCanvas');
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const volcano = {
+      x: canvas.width / 2,
+      y: canvas.height / 2 + 100,
+      width: 200,
+      height: 150
+    };
+
+    let particles = [];
+
+    function createParticle() {
+      particles.push({
+        x: volcano.x,
+        y: volcano.y - volcano.height / 2,
+        radius: Math.random() * 5 + 3,
+        color: 'orange',
+        speedX: (Math.random() - 0.5) * 3,
+        speedY: -Math.random() * 5 - 2,
+        life: 100
+      });
+    }
+
+    function drawVolcano() {
+      ctx.fillStyle = '#444';
+      ctx.beginPath();
+      ctx.moveTo(volcano.x - volcano.width/2, volcano.y);
+      ctx.lineTo(volcano.x, volcano.y - volcano.height);
+      ctx.lineTo(volcano.x + volcano.width/2, volcano.y);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    function drawParticles() {
+      for (le
