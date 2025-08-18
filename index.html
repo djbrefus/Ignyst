@@ -21,8 +21,9 @@
     h1 {
       position: absolute;
       color: #ff4500;
-      z-index: 2;
+      z-index: 3;
       text-align: center;
+      font-size: 2em;
     }
 
     canvas {
@@ -53,15 +54,34 @@
 
     let particles = [];
 
-    function createParticle() {
+    function randomRange(min, max) {
+      return Math.random() * (max - min) + min;
+    }
+
+    function createLavaParticle() {
       particles.push({
         x: volcano.x,
         y: volcano.y - volcano.height / 2,
-        radius: Math.random() * 5 + 3,
+        radius: randomRange(3, 6),
         color: 'orange',
-        speedX: (Math.random() - 0.5) * 3,
-        speedY: -Math.random() * 5 - 2,
-        life: 100
+        alpha: 1,
+        speedX: randomRange(-2, 2),
+        speedY: randomRange(-6, -3),
+        life: randomRange(80, 120)
+      });
+    }
+
+    function createSmokeParticle() {
+      particles.push({
+        x: volcano.x + randomRange(-20,20),
+        y: volcano.y - volcano.height / 2,
+        radius: randomRange(8, 15),
+        color: 'gray',
+        alpha: 0.5,
+        speedX: randomRange(-1,1),
+        speedY: randomRange(-2, -1),
+        life: randomRange(150, 250),
+        fade: 0.005
       });
     }
 
@@ -76,4 +96,54 @@
     }
 
     function drawParticles() {
-      for (le
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        ctx.beginPath();
+        ctx.globalAlpha = p.alpha;
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI*2);
+        ctx.fillStyle = p.color;
+        ctx.shadowColor = p.color === 'orange' ? 'yellow' : p.color;
+        ctx.shadowBlur = p.color === 'orange' ? 10 : 0;
+        ctx.fill();
+
+        p.x += p.speedX;
+        p.y += p.speedY;
+
+        if (p.color === 'gray') p.alpha -= p.fade;
+        else p.alpha -= 0.003;
+
+        p.life--;
+        if (p.life <= 0 || p.alpha <= 0) particles.splice(i,1);
+      }
+      ctx.globalAlpha = 1;
+      ctx.shadowBlur = 0;
+    }
+
+    function animate() {
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      drawVolcano();
+      drawParticles();
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+
+    function erupt() {
+      const lavaCount = Math.floor(randomRange(15,30));
+      for(let i=0;i<lavaCount;i++) createLavaParticle();
+      const smokeCount = Math.floor(randomRange(3,6));
+      for(let i=0;i<smokeCount;i++) createSmokeParticle();
+    }
+
+    // Erupt every 3 seconds
+    setInterval(erupt, 3000);
+
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      volcano.x = canvas.width / 2;
+      volcano.y = canvas.height / 2 + 100;
+    });
+  </script>
+</body>
+</html>
