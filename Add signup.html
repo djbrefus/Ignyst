@@ -1,23 +1,42 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sign Up - Ignyst</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <h1>Sign Up</h1>
-  <form id="signupForm">
-    <input type="email" placeholder="Email" required>
-    <input type="password" placeholder="Password" required>
-    <button type="submit">Sign Up</button>
-  </form>
-  <a href="index.html">Back</a>
+  <main>
+    <h1>Sign Up</h1>
+    <form id="signupForm">
+      <label for="email">Email:</label>
+      <input type="email" id="email" name="email" placeholder="Email" required autocomplete="email">
+
+      <label for="password">Password:</label>
+      <input type="password" id="password" name="password" placeholder="Password" required autocomplete="new-password">
+
+      <button type="submit">Sign Up</button>
+    </form>
+    <p><a href="index.html">Back to Home</a></p>
+  </main>
+
   <script src="mock_api.js"></script>
   <script>
-    document.getElementById("signupForm").addEventListener("submit", e => {
-      e.preventDefault();
-      mockSignup(); // fake API call
+    const signupForm = document.getElementById("signupForm");
+
+    signupForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+
+      if (typeof mockSignup === "function") {
+        mockSignup(email, password);
+      } else {
+        console.error("mockSignup() not found in mock_api.js");
+        alert("Signup function not available.");
+      }
     });
   </script>
 </body>
