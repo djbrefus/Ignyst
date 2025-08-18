@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Events - Ignyst</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <h1>Upcoming Events</h1>
+  <div id="eventsList"></div>
+  <a href="index.html">Back</a>
+
+  <script src="mock_api.js"></script>
+  <script>
+    window.onload = () => {
+      const events = mockGetEvents();
+      const list = document.getElementById("eventsList");
+      events.forEach(ev => {
+        const div = document.createElement("div");
+        div.innerHTML = `<strong>${ev.name}</strong> – ${ev.date} 
+          <button onclick="mockCheckWhitelist('${ev.id}')">Check Access</button>`;
+        list.appendChild(div);
+      });
+    };
+  </script>
+</body>
+</html>
