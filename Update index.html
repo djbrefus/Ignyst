@@ -1,16 +1,123 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Ignyst</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ignyst - Home</title>
   <link rel="stylesheet" href="styles.css">
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background-color: #222;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      font-family: sans-serif;
+    }
+    canvas {
+      display: block;
+      background-color: #222;
+    }
+    h1 {
+      position: absolute;
+      top: 20px;
+      text-align: center;
+      width: 100%;
+    }
+  </style>
 </head>
 <body>
   <h1>Ignyst Digital Doorman</h1>
-  <p>Secure access to VR, AR, and live events.</p>
+  <canvas id="volcanoCanvas"></canvas>
 
-  <a href="login.html">Login</a>
-  <a href="signup.html">Sign Up</a>
-  <a href="events.html">Event Feed</a>
+  <script>
+    const canvas = document.getElementById('volcanoCanvas');
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const volcano = {
+      x: canvas.width / 2,
+      y: canvas.height / 2 + 100,
+      width: 200,
+      height: 150
+    };
+
+    let particles = [];
+
+    // Function to create lava particles
+    function createParticle() {
+      particles.push({
+        x: volcano.x,
+        y: volcano.y - volcano.height / 2,
+        radius: Math.random() * 5 + 3,
+        color: 'orange',
+        speedX: (Math.random() - 0.5) * 3,
+        speedY: -Math.random() * 5 - 2,
+        life: 100
+      });
+    }
+
+    function drawVolcano() {
+      ctx.fillStyle = '#444';
+      ctx.beginPath();
+      ctx.moveTo(volcano.x - volcano.width/2, volcano.y);
+      ctx.lineTo(volcano.x, volcano.y - volcano.height);
+      ctx.lineTo(volcano.x + volcano.width/2, volcano.y);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    function drawParticles() {
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = p.color;
+        ctx.fill();
+
+        p.x += p.speedX;
+        p.y += p.speedY;
+        p.speedY += 0.1; // gravity
+        p.life--;
+
+        if (p.life <= 0) particles.splice(i, 1);
+      }
+    }
+
+    // Step 1: Animation loop
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawVolcano();
+      drawParticles();
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+
+    // Step 2: Eruption every few seconds
+    function erupt() {
+      const lavaCount = Math.floor(Math.random() * 20) + 10; // random number of lava particles
+      for (let i = 0; i < lavaCount; i++) {
+        createParticle();
+      }
+    }
+
+    // Step 3: Set interval to erupt every 3 seconds (3000ms)
+    setInterval(erupt, 3000);
+
+    // Step 4: Handle window resize
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      volcano.x = canvas.width / 2;
+      volcano.y = canvas.height / 2 + 100;
+    });
+  </script>
 </body>
 </html>
