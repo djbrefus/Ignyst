@@ -1,27 +1,53 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Events - Ignyst</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Event Feed - Ignyst</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <h1>Upcoming Events</h1>
-  <div id="eventsList"></div>
-  <a href="index.html">Back</a>
+  <main>
+    <h1>Event Feed</h1>
+    <ul id="eventList"></ul>
+    <p><a href="index.html">Back to Home</a></p>
+  </main>
 
   <script src="mock_api.js"></script>
   <script>
-    window.onload = () => {
+    const eventList = document.getElementById("eventList");
+
+    function renderEvents() {
+      if (typeof mockGetEvents !== "function") {
+        console.error("mockGetEvents() not found in mock_api.js");
+        alert("Event fetching not available.");
+        return;
+      }
+
       const events = mockGetEvents();
-      const list = document.getElementById("eventsList");
-      events.forEach(ev => {
-        const div = document.createElement("div");
-        div.innerHTML = `<strong>${ev.name}</strong> – ${ev.date} 
-          <button onclick="mockCheckWhitelist('${ev.id}')">Check Access</button>`;
-        list.appendChild(div);
+
+      events.forEach(event => {
+        const li = document.createElement("li");
+        li.textContent = `${event.name} - ${event.date}`;
+
+        const checkButton = document.createElement("button");
+        checkButton.textContent = "Check Whitelist";
+        checkButton.addEventListener("click", () => {
+          if (typeof mockCheckWhitelist === "function") {
+            mockCheckWhitelist(event.id);
+          } else {
+            console.error("mockCheckWhitelist() not found in mock_api.js");
+            alert("Whitelist check not available.");
+          }
+        });
+
+        li.appendChild(document.createTextNode(" "));
+        li.appendChild(checkButton);
+        eventList.appendChild(li);
       });
-    };
+    }
+
+    renderEvents();
   </script>
 </body>
 </html>
