@@ -17,16 +17,46 @@
   <script>
     const eventList = document.getElementById("eventList");
 
-    function renderEvents() {
+    // Haversine formula to calculate distance between two lat/lon points
+    function getDistanceMiles(lat1, lon1, lat2, lon2) {
+      const R = 3958.8; // Earth radius in miles
+      const toRad = angle => angle * Math.PI / 180;
+      const dLat = toRad(lat2 - lat1);
+      const dLon = toRad(lon2 - lon1);
+      const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+                Math.sin(dLon/2) * Math.sin(dLon/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      return R * c;
+    }
+
+    function renderEvents(userLat, userLon) {
       if (typeof mockGetEvents !== "function") {
-        console.error("mockGetEvents() not found in mock_api.js");
         alert("Event fetching not available.");
         return;
       }
 
-      const events = mockGetEvents();
+      const allEvents = mockGetEvents();
+      let nearbyEvents = [];
 
-      events.forEach(event => {
+      // Check each event's location
+      allEvents.forEach(event => {
+        if (event.virtual) {
+          return; // skip virtual events for now
+        }
+        const distance = getDistanceMiles(userLat, userLon, event.lat, event.lon);
+        if (distance <= 100) {
+          nearbyEvents.push(event);
+        }
+      });
+
+      // If no events nearby, show virtual/VR events
+      if (nearbyEvents.length === 0) {
+        nearbyEvents = allEvents.filter(e => e.virtual);
+      }
+
+      // Render events in the page
+      nearbyEvents.forEach(event => {
         const li = document.createElement("li");
         li.textContent = `${event.name} - ${event.date}`;
 
@@ -36,7 +66,6 @@
           if (typeof mockCheckWhitelist === "function") {
             mockCheckWhitelist(event.id);
           } else {
-            console.error("mockCheckWhitelist() not found in mock_api.js");
             alert("Whitelist check not available.");
           }
         });
@@ -47,7 +76,21 @@
       });
     }
 
-    renderEvents();
+    // Ask user for their location
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        position => {
+          renderEvents(position.coords.latitude, position.coords.longitude);
+        },
+        error => {
+          console.warn("Geolocation failed or denied. Showing VR events.");
+          renderEvents(0, 0); // fallback
+        }
+      );
+    } else {
+      alert("Geolocation not supported. Showing VR events.");
+      renderEvents(0, 0); // fallback
+    }
   </script>
 </body>
 </html>
